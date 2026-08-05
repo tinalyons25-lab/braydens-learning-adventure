@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sight Words">
+<meta name="theme-color" content="#4361ee">
+<title>Brayden's Sight Word Academy</title>
+<style>
+:root{--blue:#4361ee;--purple:#7048e8;--green:#16a372;--gold:#ffb000;--ink:#18233d;--bg:#f4f7ff}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:linear-gradient(135deg,#eef3ff,#fffaf2);color:var(--ink)}
+header{background:linear-gradient(135deg,var(--blue),var(--purple));color:white;text-align:center;padding:24px 16px}
+header h1{margin:0;font-size:clamp(30px,7vw,48px)} header p{margin:8px 0 0}
+.wrap{max-width:920px;margin:auto;padding:16px}
+.card{background:white;border-radius:20px;padding:20px;margin:14px 0;box-shadow:0 10px 30px #1d2d5018}
+.nav{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.nav button,.btn{border:0;border-radius:14px;padding:12px;font-weight:800;cursor:pointer}
+.nav button{background:#e9eeff;color:#304fc2} .nav button.active{background:var(--blue);color:white}
+.btn{background:var(--blue);color:white;font-size:16px} .btn.green{background:var(--green)} .btn.alt{background:#edf1ff;color:#304fc2}
+.hidden{display:none}
+.lesson{border:2px solid #e7ebf7;border-radius:16px;padding:14px;margin:10px 0}
+.chip{display:inline-block;background:#edf2ff;border-radius:999px;padding:8px 12px;margin:4px;font-size:19px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.prompt{font-size:clamp(28px,6vw,42px);font-weight:900;text-align:center;margin:22px 0}
+.answers{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.answers button{font-size:24px;padding:17px;border:2px solid #dfe5f5;background:white;border-radius:16px;cursor:pointer}
+.feedback{min-height:30px;text-align:center;font-size:19px;font-weight:800;margin:12px}
+.progress{height:15px;background:#e8ecf6;border-radius:999px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),#54d4ad)}
+.stat{border:2px solid #e7ebf7;border-radius:16px;padding:14px}
+.small{font-size:13px;color:#6b7280}
+@media(max-width:700px){.nav{grid-template-columns:repeat(2,1fr)}.grid,.answers{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<h1>Brayden's Sight Word Academy</h1>
+<p>i-Ready Kindergarten → i-Ready Grade 1 → Alphabetized Review</p>
+</header>
+
+<div class="wrap">
+<div class="card nav">
+<button id="nHome" class="active" onclick="show('home')">Home</button>
+<button id="nK" onclick="show('k')">Kindergarten</button>
+<button id="nG1" onclick="show('g1')">Grade 1</button>
+<button id="nAZ" onclick="show('az')">A–Z List</button>
+<button id="nQuiz" onclick="show('quiz')">Quiz</button>
+</div>
+
+<section id="home">
+<div class="card">
+<h2>Practice Order</h2>
+<div class="grid">
+<div class="stat"><h3>1. i-Ready Kindergarten</h3><p>43 listed word entries in lesson order.</p></div>
+<div class="stat"><h3>2. i-Ready Grade 1</h3><p>64 words in lesson order.</p></div>
+<div class="stat"><h3>3. Alphabetized List</h3><p>105 words from the supplied A–Z list.</p></div>
+<div class="stat"><h3>Adaptive Quiz</h3><p>Incorrect words remain in practice until answered correctly.</p></div>
+</div>
+<p class="small">Progress is saved on this device.</p>
+</div>
+</section>
+
+<section id="k" class="hidden"><div class="card"><h2>i-Ready Kindergarten Lessons</h2><div id="kLessons"></div></div></section>
+<section id="g1" class="hidden"><div class="card"><h2>i-Ready Grade 1 Lessons</h2><div id="g1Lessons"></div></div></section>
+<section id="az" class="hidden"><div class="card"><h2>Alphabetized Sight-Word List</h2><div id="azList"></div></div></section>
+
+<section id="quiz" class="hidden">
+<div class="card">
+<h2>Electronic Practice</h2>
+<div class="progress"><span id="bar"></span></div>
+<div class="prompt" id="prompt">Choose a set and press Start.</div>
+<div style="text-align:center;margin-bottom:14px">
+<select id="setChoice" style="padding:12px;border-radius:12px;font-size:16px">
+<option value="k">i-Ready Kindergarten</option>
+<option value="g1">i-Ready Grade 1</option>
+<option value="az">Alphabetized List</option>
+<option value="all">All Lists</option>
+</select>
+<button class="btn green" onclick="startQuiz()">Start</button>
+<button class="btn alt" onclick="hear()">Hear Word</button>
+</div>
+<div class="answers" id="answers"></div>
+<div class="feedback" id="feedback"></div>
+<p id="status" style="text-align:center"></p>
+</div>
+</section>
+</div>
+
+<script>
+const kLessons=[["a", "I"], ["the", "that", "to"], ["in", "is", "it"], ["was", "you", "on"], ["he", "be", "for"], ["as", "at", "of"], ["his", "with", "they"], ["had", "and", "are"], ["not", "have", "this"], ["but", "by", "or"], ["from", "one", "she"], ["when", "were", "all"], ["an", "what", "can", "their"], ["we", "there", "about", "were"]];
+const g1Lessons=[["up", "said", "if", "out"], ["so", "would", "some", "them"], ["will", "people", "which", "other"], ["into", "your", "do", "more"], ["these", "no", "then", "many"], ["time", "who", "like", "been"], ["has", "could", "him", "how"], ["its", "two", "than", "may"], ["made", "over", "most", "only"], ["see", "very", "new", "first"], ["make", "also", "way", "my"], ["down", "called", "now", "each"], ["did", "water", "just", "after"], ["get", "where", "back", "through"], ["such", "little", "much", "must"], ["know", "because", "our", "even"]];
+const az={"A": ["an", "all", "am", "and", "are", "as", "at"], "B": ["be", "because", "big", "but", "by"], "C": ["can", "came", "come", "could"], "D": ["did", "do", "does", "down"], "E": ["ever", "every"], "F": ["for", "from", "friend"], "G": ["get", "go", "got"], "H": ["had", "has", "he", "her", "him", "here", "have", "help"], "I": ["I", "if", "in", "is", "it"], "J": ["jump", "just"], "K": ["kind", "know"], "L": ["let", "like", "little", "love", "look"], "M": ["my", "me", "make", "made", "must"], "N": ["no", "not"], "O": ["of", "on", "or", "over", "our", "own", "off"], "P": ["play", "put"], "Q": ["quiet"], "R": ["ran", "run", "read"], "S": ["said", "see", "same", "saw", "she", "should", "so", "some", "stop"], "T": ["the", "to", "they", "that", "them", "there", "than", "two"], "U": ["up", "us", "use"], "V": ["very"], "W": ["with", "was", "we", "want", "would", "where", "who", "what", "why", "when", "will"], "Y": ["yes", "you", "your"]};
+const kWords=[...new Set(kLessons.flat())];
+const g1Words=[...new Set(g1Lessons.flat())];
+const azWords=Object.values(az).flat();
+let data=JSON.parse(localStorage.getItem('braydenSightWords')||'{"mastered":{}}');
+let queue=[],current=null,total=0;
+
+function save(){localStorage.setItem('braydenSightWords',JSON.stringify(data));}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function show(id){
+ document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));
+ document.getElementById(id).classList.remove('hidden');
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+ document.getElementById('n'+id.replace('g1','G1').replace('az','AZ').replace('quiz','Quiz').replace('home','Home').replace('k','K')).classList.add('active');
+}
+function speak(text){
+ if(!('speechSynthesis'in window))return;
+ speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(text);
+ u.lang='en-US';u.rate=.7;u.pitch=1;
+ const voices=speechSynthesis.getVoices();
+ u.voice=voices.find(v=>v.lang==='en-US'&&(/Samantha|Ava|Allison|Siri/.test(v.name)))||voices.find(v=>v.lang==='en-US')||null;
+ speechSynthesis.speak(u);
+}
+function chip(word){
+ const s=document.createElement('span');s.className='chip';s.textContent=word;
+ s.onclick=()=>speak(word);return s;
+}
+function renderLessons(el,lessons,start){
+ const box=document.getElementById(el);box.innerHTML='';
+ lessons.forEach((words,i)=>{
+  const d=document.createElement('div');d.className='lesson';
+  d.innerHTML=`<strong>Lesson ${start+i}</strong><div></div>`;
+  words.forEach(w=>d.lastElementChild.appendChild(chip(w)));
+  box.appendChild(d);
+ });
+}
+function renderAZ(){
+ azList.innerHTML='';
+ Object.entries(az).forEach(([letter,words])=>{
+  const d=document.createElement('div');d.className='lesson';
+  d.innerHTML=`<strong>${letter}</strong><div></div>`;
+  words.forEach(w=>d.lastElementChild.appendChild(chip(w)));
+  azList.appendChild(d);
+ });
+}
+function getPool(){
+ const v=setChoice.value;
+ if(v==='k')return kWords;
+ if(v==='g1')return g1Words;
+ if(v==='az')return azWords;
+ return [...new Set([...kWords,...g1Words,...azWords])];
+}
+function startQuiz(){
+ queue=shuffle(getPool().filter(w=>!data.mastered[w]));
+ if(!queue.length)queue=shuffle(getPool());
+ total=queue.length;next();
+}
+function next(){
+ if(!queue.length){prompt.textContent='Set complete!';answers.innerHTML='';status.textContent='Great job!';bar.style.width='100%';return}
+ current=queue[0];prompt.textContent='Find the word you hear';
+ const pool=getPool().filter(w=>w!==current);
+ const opts=shuffle([current,...shuffle(pool).slice(0,3)]);
+ answers.innerHTML='';
+ opts.forEach(w=>{const b=document.createElement('button');b.textContent=w;b.onclick=()=>answer(w);answers.appendChild(b)});
+ status.textContent=queue.length+' word(s) remain';
+ bar.style.width=((total-queue.length)/Math.max(total,1)*100)+'%';
+ setTimeout(()=>speak(current),250);
+}
+function answer(w){
+ if(w===current){data.mastered[current]=true;queue.shift();feedback.textContent='Correct! ⭐';feedback.style.color='#08745d'}
+ else{queue.push(queue.shift());feedback.textContent='Try again — this word stays in practice.';feedback.style.color='#c0392b'}
+ save();setTimeout(()=>{feedback.textContent='';next()},750);
+}
+function hear(){if(current)speak(current)}
+renderLessons('kLessons',kLessons,0);
+renderLessons('g1Lessons',g1Lessons,14);
+renderAZ();
+</script>
+</body></html>
