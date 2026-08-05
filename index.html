@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Brayden Adventure">
+<meta name="theme-color" content="#3b63f3">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>First Grade Adventure</title>
+<style>
+:root{--blue:#3b63f3;--purple:#7653e8;--green:#18a572;--gold:#ffb21a;--red:#d84b4b;--ink:#17223b;--bg:#f4f7ff;--card:#fff;}
+*{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:linear-gradient(160deg,#eef4ff,#fff8ef);color:var(--ink)}
+header{background:linear-gradient(135deg,var(--blue),var(--purple));color:white;padding:22px 16px;text-align:center} header h1{margin:0;font-size:clamp(30px,7vw,48px)} header p{margin:7px 0 0}
+.wrap{max-width:980px;margin:auto;padding:15px} .card{background:var(--card);border-radius:22px;padding:20px;margin:14px 0;box-shadow:0 10px 30px #24315c18}
+.nav{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;position:sticky;top:0;z-index:20;padding:10px;background:#f4f7ffdd;backdrop-filter:blur(10px)}
+.nav button,.btn{border:0;border-radius:14px;padding:12px 10px;font-weight:800;cursor:pointer} .nav button{background:#e9eeff;color:#3151bb} .nav button.active{background:var(--blue);color:white}
+.btn{background:var(--blue);color:white;font-size:16px} .btn.green{background:var(--green)} .btn.alt{background:#e9eeff;color:#3151bb} .btn.red{background:#fff0f0;color:var(--red)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px} .tile{border:2px solid #e9edf8;border-radius:17px;padding:15px} .tile h3{margin-top:0}
+.progress{height:15px;background:#e9edf8;border-radius:999px;overflow:hidden} .progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),#55d4ad);transition:.3s}
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800} .done{background:#daf8ee;color:#08745d} .work{background:#fff0d6;color:#985d00}
+.prompt{font-size:clamp(24px,5vw,34px);font-weight:900;text-align:center;margin:24px 0} .answers{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.answers button{font-size:22px;padding:17px;border:2px solid #dfe5f6;background:white;border-radius:16px;cursor:pointer} .answers button:active{transform:scale(.98)}
+.feedback{min-height:30px;text-align:center;font-size:19px;font-weight:800;margin:12px} .hidden{display:none}
+.mission{display:flex;justify-content:space-between;gap:12px;align-items:center;border:2px solid #e8edf8;border-radius:17px;padding:14px;margin:10px 0} .mission button{min-width:95px}
+.obs{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid #edf0f5} .obs input{width:24px;height:24px;accent-color:var(--green)}
+.word{display:inline-block;padding:8px 11px;background:#edf2ff;border-radius:999px;margin:4px;font-size:18px}
+.stars{font-size:25px;color:var(--gold)} table{width:100%;border-collapse:collapse} td,th{padding:10px;border-bottom:1px solid #e7ebf4;text-align:left}
+.small{font-size:13px;color:#697386} @media(max-width:720px){.nav{grid-template-columns:repeat(3,1fr)}.grid,.answers{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><h1>First Grade Adventure</h1><p>South Carolina Kindergarten Review • Version 1.0</p></header>
+<div class="wrap">
+<div class="nav">
+<button id="nHome" class="active" onclick="show('home')">Home</button>
+<button id="nMissions" onclick="show('missions')">Missions</button>
+<button id="nWords" onclick="show('words')">Sight Words</button>
+<button id="nChecks" onclick="show('checks')">Parent Checks</button>
+<button id="nReport" onclick="show('report')">Report</button>
+</div>
+
+<section id="home">
+<div class="card"><h2>Today’s Goal</h2><div class="grid">
+<div class="tile"><h3>⭐ Stars Earned</h3><div class="stars" id="starCount">0</div></div>
+<div class="tile"><h3>🏆 Missions Mastered</h3><p id="missionCount">0 / 10</p></div>
+<div class="tile"><h3>📖 Sight Words</h3><p id="wordCount">0 / 42</p></div>
+<div class="tile"><h3>✅ Parent Checks</h3><p id="checkCount">0 / 12</p></div>
+</div>
+<p style="text-align:center;margin-top:18px"><button class="btn green" onclick="continueLearning()">Continue Learning</button></p>
+</div>
+<div class="card"><h2>How It Grows With Him</h2><p>He completes a mission. Missed questions stay in practice. A mission is marked mastered after every question in it is answered correctly. Progress stays saved on this iPad.</p><p class="small">This Version 1.0 is a focused home screening and practice tool. Skills requiring extended reading, writing samples, discussion, physical performance, or teacher observation are included as parent checks rather than automatic scores.</p></div>
+</section>
+
+<section id="missions" class="hidden"><div class="card"><h2>Learning Missions</h2><div class="progress"><span id="missionBar"></span></div><div id="missionList"></div></div>
+<div class="card hidden" id="missionPlay"><h2 id="missionTitle"></h2><p id="missionStatus"></p><div class="prompt" id="missionPrompt"></div><div class="answers" id="missionAnswers"></div><div class="feedback" id="missionFeedback"></div><p style="text-align:center"><button class="btn alt" onclick="speakPrompt()">🔊 Hear Question</button></p></div></section>
+
+<section id="words" class="hidden"><div class="card"><h2>Kindergarten Sight Words</h2><p>Tap <strong>Hear Word</strong>, then choose it. A missed word returns later.</p><div class="progress"><span id="wordBar"></span></div><div class="prompt" id="wordPrompt">Press Start</div><div class="answers" id="wordAnswers"></div><div class="feedback" id="wordFeedback"></div><p style="text-align:center"><button class="btn green" onclick="startWords()">Start Words</button> <button class="btn alt" onclick="hearWord()">🔊 Hear Word</button></p><p id="wordStatus" style="text-align:center"></p></div>
+<div class="card"><h3>Word Bank</h3><div id="wordBank"></div></div></section>
+
+<section id="checks" class="hidden"><div class="card"><h2>Parent-Guided Checks</h2><p>Check a skill only after he shows it without being told the answer.</p><div id="checkList"></div></div></section>
+
+<section id="report" class="hidden"><div class="card"><h2>Parent Progress Report</h2><div id="reportSummary"></div><div id="domainTable"></div><p><button class="btn alt" onclick="window.print()">Print Report</button> <button class="btn red" onclick="resetAll()">Reset Progress</button></p></div></section>
+</div>
+<script>
+const missions=[{"title": "Letter Sounds", "domain": "Reading", "items": [{"q": "Which letter makes the first sound in sun?", "choices": ["s", "m", "t", "f"], "a": "s"}, {"q": "Which letter makes the first sound in map?", "choices": ["m", "n", "p", "b"], "a": "m"}, {"q": "Which word begins like fish?", "choices": ["fan", "cat", "sun", "dog"], "a": "fan"}]}, {"title": "Rhymes & Blending", "domain": "Reading", "items": [{"q": "Which word rhymes with cat?", "choices": ["hat", "cup", "dog", "sun"], "a": "hat"}, {"q": "Blend /m/ /a/ /p/.", "choices": ["map", "mat", "mop", "cap"], "a": "map"}, {"q": "What is the last sound in dog?", "choices": ["g", "d", "o", "t"], "a": "g"}]}, {"title": "Word Reading", "domain": "Reading", "items": [{"q": "Which word says cat?", "choices": ["cat", "cut", "cap", "can"], "a": "cat"}, {"q": "Which word says ship?", "choices": ["ship", "chip", "shop", "shut"], "a": "ship"}, {"q": "Which word says bed?", "choices": ["bed", "bad", "bid", "bud"], "a": "bed"}]}, {"title": "Story Thinking", "domain": "Reading", "items": [{"q": "Sam put on boots and opened an umbrella. What is probably happening?", "choices": ["It is raining", "It is bedtime", "It is lunchtime", "It is sunny"], "a": "It is raining"}, {"q": "Mia fed the dog and filled its water bowl. Who is this mostly about?", "choices": ["Mia and her dog", "A teacher", "A bird", "A bus driver"], "a": "Mia and her dog"}, {"q": "First Ben planted a seed. Next he watered it. What did Ben do after planting?", "choices": ["He watered it", "He ate it", "He slept", "He ran home"], "a": "He watered it"}]}, {"title": "Counting & Comparing", "domain": "Math", "items": [{"q": "What number comes after 17?", "choices": ["18", "16", "27", "19"], "a": "18"}, {"q": "How many dots? \u25cf \u25cf \u25cf \u25cf \u25cf", "choices": ["5", "4", "6", "3"], "a": "5"}, {"q": "Which number is greater?", "choices": ["9", "6", "They are equal", "0"], "a": "9"}]}, {"title": "Addition & Subtraction", "domain": "Math", "items": [{"q": "3 + 2 = ?", "choices": ["5", "4", "6", "3"], "a": "5"}, {"q": "7 \u2212 3 = ?", "choices": ["4", "3", "5", "10"], "a": "4"}, {"q": "6 + \u25a1 = 10", "choices": ["4", "3", "5", "6"], "a": "4"}]}, {"title": "Teen Numbers", "domain": "Math", "items": [{"q": "Which shows 14?", "choices": ["1 ten and 4 ones", "4 tens and 1 one", "14 tens", "1 ten and 3 ones"], "a": "1 ten and 4 ones"}, {"q": "Which number is one more than 19?", "choices": ["20", "18", "29", "10"], "a": "20"}, {"q": "Which number is one less than 12?", "choices": ["11", "13", "10", "2"], "a": "11"}]}, {"title": "Shapes & Measurement", "domain": "Math", "items": [{"q": "Which shape has three sides?", "choices": ["Triangle", "Square", "Circle", "Rectangle"], "a": "Triangle"}, {"q": "A pencil is 8 cubes long. A crayon is 5 cubes long. Which is longer?", "choices": ["The pencil", "The crayon", "They are equal", "Cannot tell"], "a": "The pencil"}, {"q": "Which object is shaped most like a sphere?", "choices": ["A ball", "A book", "A door", "A paper"], "a": "A ball"}]}, {"title": "Science Basics", "domain": "Science", "items": [{"q": "Which is a living thing?", "choices": ["A tree", "A rock", "A chair", "A spoon"], "a": "A tree"}, {"q": "What happens to ice in a warm room?", "choices": ["It melts", "It grows", "It turns to wood", "It gets colder"], "a": "It melts"}, {"q": "Which sense helps you hear a bell?", "choices": ["Hearing", "Sight", "Taste", "Smell"], "a": "Hearing"}]}, {"title": "Rules & Community", "domain": "Social Studies", "items": [{"q": "Which rule helps people stay safe?", "choices": ["Stop at a red light", "Run into the street", "Push in line", "Ignore adults"], "a": "Stop at a red light"}, {"q": "Who helps keep a classroom organized?", "choices": ["The teacher and students", "Only visitors", "Nobody", "Only the bus driver"], "a": "The teacher and students"}, {"q": "What should you do when someone else is speaking?", "choices": ["Listen and wait your turn", "Shout over them", "Walk away", "Push ahead"], "a": "Listen and wait your turn"}]}], words=["a", "I", "the", "that", "to", "in", "is", "it", "was", "you", "on", "he", "be", "for", "as", "at", "of", "his", "with", "they", "had", "and", "are", "not", "have", "this", "but", "by", "or", "from", "one", "she", "when", "were", "all", "an", "what", "can", "their", "we", "there", "about"], checks=[["Writing", "Writes first and last name."], ["Writing", "Writes or dictates a complete sentence."], ["Writing", "Uses a capital letter, spaces, and ending punctuation."], ["Speaking & Listening", "Retells a familiar story in order."], ["Speaking & Listening", "Follows a two- or three-step direction."], ["Reading", "Holds a book correctly and tracks print left to right."], ["Math", "Counts aloud to 100."], ["Math", "Recognizes and writes numerals 0\u201320."], ["Math", "Counts up to 20 objects accurately."], ["Math", "Sorts objects by color, shape, or size and explains the rule."], ["Physical/Self-Help", "Uses scissors safely and holds a pencil comfortably."], ["Physical/Self-Help", "Opens lunch items, uses the restroom, and manages a backpack independently."]];
+let data=JSON.parse(localStorage.getItem('fgAdventureV1')||'{"missions":{},"words":{},"checks":{},"stars":0}');
+let activeMission=null,queue=[],currentItem=null,currentWord=null,wordQueue=[];
+function save(){localStorage.setItem('fgAdventureV1',JSON.stringify(data));refreshHome();}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function show(id){document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));document.getElementById('n'+id[0].toUpperCase()+id.slice(1)).classList.add('active');if(id==='missions')renderMissions();if(id==='report')renderReport();}
+function refreshHome(){let md=missions.filter((m,i)=>data.missions[i]?.mastered).length,wd=words.filter(w=>data.words[w]).length,cd=Object.values(data.checks).filter(Boolean).length;starCount.textContent=data.stars||0;missionCount.textContent=`${md} / ${missions.length}`;wordCount.textContent=`${wd} / ${words.length}`;checkCount.textContent=`${cd} / ${checks.length}`;missionBar.style.width=(md/missions.length*100)+'%';wordBar.style.width=(wd/words.length*100)+'%';}
+function continueLearning(){let i=missions.findIndex((m,x)=>!data.missions[x]?.mastered);if(i>=0){show('missions');startMission(i)}else if(words.some(w=>!data.words[w]))show('words');else show('report');}
+function renderMissions(){missionList.innerHTML='';missions.forEach((m,i)=>{let done=data.missions[i]?.mastered;let d=document.createElement('div');d.className='mission';d.innerHTML=`<div><strong>${m.title}</strong><br><span class="small">${m.domain} • ${m.items.length} questions</span><br>${done?'<span class="badge done">Mastered</span>':'<span class="badge work">Practice</span>'}</div><button class="btn ${done?'alt':'green'}">${done?'Review':'Start'}</button>`;d.querySelector('button').onclick=()=>startMission(i);missionList.appendChild(d)})}
+function startMission(i){activeMission=i;queue=shuffle(missions[i].items.map((x,n)=>({...x,n})));missionPlay.classList.remove('hidden');missionTitle.textContent=missions[i].title;nextMissionItem();missionPlay.scrollIntoView({behavior:'smooth'})}
+function nextMissionItem(){if(!queue.length){data.missions[activeMission]={mastered:true};data.stars=(data.stars||0)+3;save();missionPrompt.textContent='Mission mastered! 🎉';missionAnswers.innerHTML='';missionFeedback.textContent='You earned 3 stars.';renderMissions();return}currentItem=queue[0];missionStatus.textContent=queue.length+' question(s) remain';missionPrompt.textContent=currentItem.q;missionAnswers.innerHTML='';shuffle(currentItem.choices).forEach(c=>{let b=document.createElement('button');b.textContent=c;b.onclick=()=>answerMission(c);missionAnswers.appendChild(b)})}
+function answerMission(c){let ok=c===currentItem.a;if(ok){queue.shift();data.stars=(data.stars||0)+1;missionFeedback.textContent='Correct! ⭐';missionFeedback.style.color='#08745d'}else{queue.push(queue.shift());missionFeedback.textContent='Correct answer: '+currentItem.a+' — it will return.';missionFeedback.style.color='#c0392b'}save();setTimeout(()=>{missionFeedback.textContent='';nextMissionItem()},800)}
+function speakPrompt(){if(!currentItem||!('speechSynthesis'in window))return;speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(currentItem.q);u.rate=.8;speechSynthesis.speak(u)}
+function startWords(){wordQueue=shuffle(words.filter(w=>!data.words[w]));if(!wordQueue.length)wordQueue=shuffle(words);nextWord()}
+function nextWord(){if(!wordQueue.length){wordPrompt.textContent='All kindergarten words mastered! 🎉';wordAnswers.innerHTML='';wordStatus.textContent='';return}currentWord=wordQueue[0];wordPrompt.textContent='Find the word you hear';let opts=shuffle([currentWord,...shuffle(words.filter(w=>w!==currentWord)).slice(0,3)]);wordAnswers.innerHTML='';opts.forEach(w=>{let b=document.createElement('button');b.textContent=w;b.onclick=()=>answerWord(w);wordAnswers.appendChild(b)});wordStatus.textContent=wordQueue.length+' word(s) remain';setTimeout(hearWord,250)}
+function hearWord(){if(!currentWord||!('speechSynthesis'in window))return;speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(currentWord);u.rate=.72;speechSynthesis.speak(u)}
+function answerWord(w){if(w===currentWord){data.words[currentWord]=true;data.stars=(data.stars||0)+1;wordQueue.shift();wordFeedback.textContent='Correct! ⭐';wordFeedback.style.color='#08745d'}else{wordQueue.push(wordQueue.shift());wordFeedback.textContent='Try again — this word stays in practice.';wordFeedback.style.color='#c0392b'}save();setTimeout(()=>{wordFeedback.textContent='';nextWord()},700)}
+function renderChecks(){checkList.innerHTML='';checks.forEach((c,i)=>{let l=document.createElement('label');l.className='obs';l.innerHTML=`<input type="checkbox" ${data.checks[i]?'checked':''}><span><strong>${c[0]}:</strong> ${c[1]}</span>`;l.querySelector('input').onchange=e=>{data.checks[i]=e.target.checked;if(e.target.checked)data.stars=(data.stars||0)+1;save()};checkList.appendChild(l)})}
+function renderReport(){let mastered=missions.filter((m,i)=>data.missions[i]?.mastered).length,wd=words.filter(w=>data.words[w]).length,cd=Object.values(data.checks).filter(Boolean).length;reportSummary.innerHTML=`<div class="grid"><div class="tile"><h3>Missions</h3><p>${mastered} / ${missions.length} mastered</p></div><div class="tile"><h3>Sight Words</h3><p>${wd} / ${words.length} mastered</p></div><div class="tile"><h3>Parent Checks</h3><p>${cd} / ${checks.length} demonstrated</p></div><div class="tile"><h3>Total Stars</h3><p>${data.stars||0} ⭐</p></div></div>`;let domains=[...new Set(missions.map(m=>m.domain))],h='<h3>Subject Progress</h3><table><tr><th>Subject</th><th>Mastered</th><th>Status</th></tr>';domains.forEach(d=>{let ms=missions.map((m,i)=>({m,i})).filter(x=>x.m.domain===d),g=ms.filter(x=>data.missions[x.i]?.mastered).length;h+=`<tr><td>${d}</td><td>${g} / ${ms.length}</td><td>${g===ms.length?'<span class="badge done">Mastered</span>':'<span class="badge work">Continue</span>'}</td></tr>`});h+='</table>';domainTable.innerHTML=h}
+function resetAll(){if(confirm('Delete all saved progress?')){data={missions:{},words:{},checks:{},stars:0};save();renderMissions();renderChecks();renderReport();show('home')}}
+wordBank.innerHTML=words.map(w=>`<span class="word">${w}</span>`).join('');renderChecks();refreshHome();
+</script>
+<script>
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  });
+}
+</script>
+
+</body></html>
